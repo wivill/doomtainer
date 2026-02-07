@@ -2,3 +2,4 @@
 *.wad
 *.zip
 .env
+*.log

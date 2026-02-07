@@ -13,7 +13,7 @@ services:
       - PULSE_COOKIE=/tmp/pulse-cookie
       - SDL_AUDIODRIVER=pulseaudio
       # Try native Wayland. If it fails try switching to 'x11'
-      - SDL_VIDEODRIVER=wayland
+      - SDL_VIDEODRIVER=Wayland
     volumes:
       # --- SYSTEM (GFX and Audio) ---
       - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-dir/${WAYLAND_DISPLAY}
@@ -54,4 +54,3 @@ services:
       -iwad /games/iwads/DOOM.WAD
       -file
       /games/mods/Project_Brutality-master.zip
-      +vid_backend vulkan

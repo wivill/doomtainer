@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     nasm tar wget \
     libwayland-dev wayland-protocols libxkbcommon-dev \
     libwebp-dev \
+    vulkan-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # (The rest of the ZMusic and GZDoom compilation remains the same...)
