@@ -2,7 +2,7 @@ FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Añadimos libwayland-dev, wayland-protocols y libxkbcommon-dev para soporte nativo
+# Add libwayland-dev, wayland-protocols and libxkbcommon-dev for native support
 RUN apt-get update && apt-get install -y \
     git cmake make g++ \
     libsdl2-dev libgtk-3-dev libvpx-dev \
@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y \
     libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# (El resto de la compilación de ZMusic y GZDoom se mantiene igual...)
+# (The rest of the ZMusic and GZDoom compilation remains the same...)
 WORKDIR /tmp/zmusic
 RUN git clone https://github.com/coelckers/ZMusic.git . && \
     mkdir build && cd build && \

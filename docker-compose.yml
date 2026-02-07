@@ -49,7 +49,7 @@ services:
               capabilities: [gpu]
 
     # --- LAUNCH COMMAND ---
-    # Ajust based on the wad and file you want to load. Pending to create a proper entrypoint to handle this.
+    # Adjust based on the wad and file you want to load. Pending to create a proper entrypoint to handle this.
     command: >
       -iwad /games/iwads/DOOM.WAD
       -file
