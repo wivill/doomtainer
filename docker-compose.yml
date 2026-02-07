@@ -1,0 +1,57 @@
+services:
+  gzdoom:
+    # Build from specific engine
+    build:
+      context: ./engines/gzdoom
+    container_name: doom-engine
+    environment:
+      - DISPLAY=${DISPLAY}
+      - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
+      - XDG_RUNTIME_DIR=/tmp/runtime-dir
+      # Audio vars
+      - PULSE_SERVER=unix:/tmp/pulse-socket
+      - PULSE_COOKIE=/tmp/pulse-cookie
+      - SDL_AUDIODRIVER=pulseaudio
+      # Try native Wayland. If it fails try switching to 'x11'
+      - SDL_VIDEODRIVER=wayland
+    volumes:
+      # --- SYSTEM (GFX and Audio) ---
+      - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-dir/${WAYLAND_DISPLAY}
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulse-socket
+
+      # --- AUDIO FIX ---
+      # Mount the socket
+      - ${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulse-socket
+      # Mount the cookie
+      - ${PULSE_COOKIE_HOST}:/tmp/pulse-cookie:ro
+
+      # --- YOUR WADS AND MODS HERE ---
+      # 1. (IWADS)
+      - ./original_wads:/games/iwads
+      # 2. Maps
+      - ./map_wads:/games/maps
+      # 3. Gameplay Mods
+      - ./mods:/games/mods
+      # 4. Persistent Config
+      - ./config:/root/.config/gzdoom
+
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/snd:/dev/snd
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+    # --- LAUNCH COMMAND ---
+    # Ajust based on the wad and file you want to load. Pending to create a proper entrypoint to handle this.
+    command: >
+      -iwad /games/iwads/DOOM.WAD
+      -file
+      /games/mods/Project_Brutality-master.zip
+      +vid_backend vulkan
