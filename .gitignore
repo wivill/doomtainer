@@ -1,3 +1,4 @@
 *.WAD
 *.wad
 *.zip
+.env
