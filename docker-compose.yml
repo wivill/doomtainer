@@ -54,3 +54,10 @@ services:
       -iwad /games/iwads/DOOM.WAD
       -file
       /games/mods/Project_Brutality-master.zip
+      /games/mods/IDKFA_Soundtrack_Mod_v2/WAD/IDKFAv2.wad
+      /games/mods/zdoom-dhtp-20180514.pk3
+      /games/mods/Ultimate_DoomVisor_v2.13_2019-06-07/UDV_v2.13_A_BASE.pk3
+      /games/mods/Ultimate_DoomVisor_v2.13_2019-06-07/UDV_v2.13_B_VISOR_Alt_1.pk3
+      /games/mods/Ultimate_DoomVisor_v2.13_2019-06-07/UDV_v2.13_C_GFX_HIRES_Mugshot_BASE.pk3
+      /games/mods/Ultimate_DoomVisor_v2.13_2019-06-07/UDV_v2.13_C_SFX_Ambient.pk3
+      /games/mods/Ultimate_DoomVisor_v2.13_2019-06-07/UDV_v2.13_D_MISC_FONT_A_RestoreOriginal.pk3

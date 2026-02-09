@@ -3,3 +3,6 @@
 *.zip
 .env
 *.log
+*.pk3
+savegames
+mods/*
