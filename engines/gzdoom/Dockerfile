@@ -32,8 +32,14 @@ RUN git clone https://github.com/coelckers/gzdoom.git . && \
     cmake --build build -j"$(nproc)" && \
     cmake --install build
 
+# The container runs as the host user (see docker-compose.yml), whose UID has
+# no home in the image. A sticky world-writable one lets any UID keep its
+# engine cache there.
 WORKDIR /root
-RUN rm -rf /tmp/gzdoom /tmp/zmusic
+RUN rm -rf /tmp/gzdoom /tmp/zmusic && \
+    mkdir -m 1777 /home/doom
 
 WORKDIR /games
-ENTRYPOINT ["gzdoom"]
+# Config and saves live in the /config bind mount, independent of $HOME and
+# of each engine's default path layout.
+ENTRYPOINT ["gzdoom", "-config", "/config/gzdoom.ini", "-savedir", "/config/savegames"]
