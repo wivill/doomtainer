@@ -18,16 +18,16 @@ RUN apt-get update && apt-get install -y \
 # (The rest of the ZMusic and GZDoom compilation remains the same...)
 WORKDIR /tmp/zmusic
 RUN git clone https://github.com/coelckers/ZMusic.git . && \
-    mkdir build && cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release && \
-    make -j$(nproc) && make install
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build build -j"$(nproc)" && \
+    cmake --install build
 
 WORKDIR /tmp/gzdoom
 RUN git clone https://github.com/coelckers/gzdoom.git . && \
     git checkout g4.11.3 && \
-    mkdir build && cd build && \
-    cmake .. -DCMAKE_BUILD_TYPE=Release -DINCLUDE_INSTALL_DIR=/usr/include && \
-    make -j$(nproc) && make install
+    cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DINCLUDE_INSTALL_DIR=/usr/include && \
+    cmake --build build -j"$(nproc)" && \
+    cmake --install build
 
 WORKDIR /root
 RUN rm -rf /tmp/gzdoom /tmp/zmusic

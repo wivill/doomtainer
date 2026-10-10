@@ -1,0 +1,10 @@
+ignored:
+  # DL3008 (pin apt package versions): the base image is already pinned by
+  # tag (ubuntu:22.04), and Ubuntu archives drop old package versions, so
+  # exact `pkg=version` pins make the build fail later for no benefit.
+  - DL3008
+  # DL3015 (--no-install-recommends): the GPU runtime the game needs at play
+  # time (e.g. mesa-vulkan-drivers via libvulkan1/vulkan-tools) arrives as a
+  # Recommends. Dropping recommends would silently fall back to software
+  # rendering, which CI can't detect since it never runs the game.
+  - DL3015
