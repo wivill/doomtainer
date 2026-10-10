@@ -1,0 +1,46 @@
+# Build check: compiles ZMusic + GZDoom into the engine image exactly as
+# run.sh would, and validates docker-compose.yml. CI can't run the game
+# (no GPU, display or audio), so this proves the image builds, not that it plays.
+name: build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      # run.sh normally generates these from the host session; any values do
+      # for validating the file's structure.
+      - name: Validate docker-compose.yml
+        env:
+          XDG_RUNTIME_DIR: /run/user/1000
+          WAYLAND_DISPLAY: wayland-1
+          DISPLAY: ":0"
+          PULSE_COOKIE_HOST: /tmp/pulse-cookie
+        run: docker compose config --quiet
+
+      - name: Build engine image
+        run: docker build -t doomtainer-gzdoom engines/gzdoom
+
+      - name: Smoke-test the engine binary
+        # The binary must be on PATH (it's the ENTRYPOINT) and every shared
+        # library it links against must resolve inside the image.
+        run: |
+          docker run --rm --entrypoint bash doomtainer-gzdoom -euo pipefail -c '
+            bin="$(command -v gzdoom)"
+            echo "gzdoom: $bin"
+            missing="$(ldd "$bin" | grep "not found" || true)"
+            if [ -n "$missing" ]; then
+              echo "Unresolved libraries:"; echo "$missing"; exit 1
+            fi
+          '

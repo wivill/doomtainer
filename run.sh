@@ -19,12 +19,14 @@ else
 fi
 
 # 3. Create dynamic .env file
-echo "UID=$USER_UID" > .env
-echo "GID=$USER_GID" >> .env
-echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR" >> .env
-echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY" >> .env
-echo "DISPLAY=$DISPLAY" >> .env
-echo "PULSE_COOKIE_HOST=$PULSE_COOKIE_PATH" >> .env
+{
+    echo "UID=$USER_UID"
+    echo "GID=$USER_GID"
+    echo "XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR"
+    echo "WAYLAND_DISPLAY=$WAYLAND_DISPLAY"
+    echo "DISPLAY=$DISPLAY"
+    echo "PULSE_COOKIE_HOST=$PULSE_COOKIE_PATH"
+} > .env
 
 # 4. Screen permissions (X11 Fallback)
 xhost +local:root 2>/dev/null

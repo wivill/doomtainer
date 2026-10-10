@@ -1,0 +1,78 @@
+name: lint
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  # Pinned, checksum-verified tool versions. Bump a version and its SHA256
+  # together (checksums come from each release's published checksum file).
+  ACTIONLINT_VERSION: 1.7.12
+  ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+  # actionlint runs shellcheck on every `run:` block; the runner image ships an
+  # older shellcheck with different findings, so pin it too.
+  SHELLCHECK_VERSION: v0.11.0
+  SHELLCHECK_SHA256: 8c3be12b05d5c177a04c29e3c78ce89ac86f1595681cab149b65b97c4e227198
+  HADOLINT_VERSION: v2.15.1
+  HADOLINT_SHA256: c7187db94eeeeca956519a6af171adc31453941a1e777961f6e680f697c8c507
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install pinned linters
+        run: |
+          fetch() {  # url sha256 out
+            curl -fsSL -o "$3" "$1"
+            echo "$2  $3" | sha256sum --check
+          }
+          fetch "https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.linux.x86_64.tar.xz" \
+            "$SHELLCHECK_SHA256" shellcheck.tar.xz
+          tar -xJf shellcheck.tar.xz
+          sudo install "shellcheck-${SHELLCHECK_VERSION}/shellcheck" /usr/local/bin/shellcheck
+
+          fetch "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz" \
+            "$ACTIONLINT_SHA256" actionlint.tar.gz
+          tar -xzf actionlint.tar.gz actionlint
+          sudo install actionlint /usr/local/bin/actionlint
+
+          fetch "https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-linux-x86_64" \
+            "$HADOLINT_SHA256" hadolint
+          sudo install hadolint /usr/local/bin/hadolint
+
+          shellcheck --version | sed -n 2p; actionlint --version | head -n1; hadolint --version
+
+      - name: actionlint (workflows, incl. shellcheck on run blocks)
+        run: actionlint -shellcheck="$(command -v shellcheck)" -verbose
+
+      # Scripts and Dockerfiles are found by name so new ones are picked up
+      # automatically; finding none means discovery broke, so fail loudly.
+      - name: shellcheck (shell scripts)
+        # Run even if an earlier check failed, so one CI run reports every finding.
+        if: ${{ !cancelled() }}
+        run: |
+          mapfile -t scripts < <(git ls-files -- '*.sh')
+          if [ "${#scripts[@]}" -eq 0 ]; then
+            echo "::error::No shell scripts found; the discovery step is probably broken."
+            exit 1
+          fi
+          printf 'Checking:\n'; printf '  %s\n' "${scripts[@]}"
+          shellcheck "${scripts[@]}"
+
+      # Rule exceptions live in .hadolint.yaml with the reason.
+      - name: hadolint (Dockerfiles)
+        if: ${{ !cancelled() }}
+        run: |
+          mapfile -t dockerfiles < <(git ls-files -- '*Dockerfile' '*.Dockerfile' 'Dockerfile.*')
+          if [ "${#dockerfiles[@]}" -eq 0 ]; then
+            echo "::error::No Dockerfiles found; the discovery step is probably broken."
+            exit 1
+          fi
+          printf 'Checking:\n'; printf '  %s\n' "${dockerfiles[@]}"
+          hadolint "${dockerfiles[@]}"
