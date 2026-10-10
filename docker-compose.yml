@@ -13,12 +13,11 @@ services:
       - PULSE_COOKIE=/tmp/pulse-cookie
       - SDL_AUDIODRIVER=pulseaudio
       # Try native Wayland. If it fails try switching to 'x11'
-      - SDL_VIDEODRIVER=Wayland
+      - SDL_VIDEODRIVER=wayland
     volumes:
       # --- SYSTEM (GFX and Audio) ---
       - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-dir/${WAYLAND_DISPLAY}
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
-      - ${XDG_RUNTIME_DIR}/pulse/native:/tmp/pulse-socket
 
       # --- AUDIO FIX ---
       # Mount the socket
