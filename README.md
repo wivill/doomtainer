@@ -90,6 +90,24 @@ This script will:
 
 The first run will take a few minutes to build the GZDoom engine.
 
+## macOS (native, Apple Silicon)
+
+The container setup doesn't work on macOS: Docker there runs inside a Linux VM with no GPU, Wayland/X11 or PulseAudio passthrough. Instead, `run-macos.sh` runs the engine natively and uses the same `original_wads/`, `map_wads/` and `mods/` folders. It also reads the same launch arguments from the `command:` block in `docker-compose.yml`, so you only maintain the mod list in one place.
+
+1.  **Install UZDoom** (the actively maintained GZDoom fork, with a native ARM64 build that renders through Metal via MoltenVK). Download `MacOS-UZDoom-Release-ARM64.dmg` from the [UZDoom releases](https://github.com/UZDoom/UZDoom/releases) and drag `UZDoom.app` into `/Applications`. Each release includes a `_release.json` file with the SHA-256 checksum of every asset:
+    ```bash
+    shasum -a 256 MacOS-UZDoom-Release-ARM64.dmg
+    ```
+    The app is code-signed but not notarized. If you downloaded it with a browser, macOS will block the first launch. Allow it once under *System Settings → Privacy & Security → Open Anyway*.
+
+2.  **Add your WADs and mods** to the same folders described above.
+
+3.  **Run:**
+    ```bash
+    ./run-macos.sh            # any extra arguments are passed to the engine, e.g. +map E1M1
+    ```
+    The script checks that every referenced file exists before it launches. Settings are stored in `config/uzdoom-macos.ini`, separate from the container's `gzdoom.ini` (a different engine and version would rewrite it). Saves go in `savegames/`. To use a different engine binary, set `UZDOOM_BIN`.
+
 ## Configuration
 
 *   **Mods and Maps:** To change which mods and maps are loaded, edit the `command` section in the `docker-compose.yml` file.
