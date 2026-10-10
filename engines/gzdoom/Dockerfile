@@ -17,10 +17,13 @@ RUN apt-get update && apt-get install -y \
 
 # (The rest of the ZMusic and GZDoom compilation remains the same...)
 WORKDIR /tmp/zmusic
+# ldconfig registers /usr/local/lib so gzdoom can load libzmusic. Without it
+# the game only started under the NVIDIA runtime, whose hook happens to run it.
 RUN git clone https://github.com/coelckers/ZMusic.git . && \
     cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && \
     cmake --build build -j"$(nproc)" && \
-    cmake --install build
+    cmake --install build && \
+    ldconfig
 
 WORKDIR /tmp/gzdoom
 RUN git clone https://github.com/coelckers/gzdoom.git . && \
