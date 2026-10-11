@@ -61,8 +61,11 @@ fi
 engine_version=""
 case "$platform" in
     macos)
+        # Only inside an app bundle; PlistBuddy reports a missing file on stdout.
         plist="${UZDOOM_BIN%/MacOS/*}/Info.plist"
-        engine_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist" 2>/dev/null || true)"
+        if [ -f "$plist" ]; then
+            engine_version="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$plist" 2>/dev/null || true)"
+        fi
         ;;
     windows)
         # ProductVersion is the git tag (e.g. 5.0.3), possibly with a suffix.
@@ -71,6 +74,8 @@ case "$platform" in
             | tr -d '\r' | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+' || true)"
         ;;
 esac
+# Anything but X.Y.Z (an error message, an empty field) counts as unknown.
+engine_version="$(printf '%s\n' "$engine_version" | grep -oE '^[0-9]+\.[0-9]+\.[0-9]+$' || true)"
 check_engine_version "$engine_version"
 
 # 3. Same mod files as the other machines, then the latest saves.
