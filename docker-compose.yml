@@ -21,12 +21,19 @@ services:
       - PULSE_SERVER=unix:/tmp/pulse-socket
       - PULSE_COOKIE=/tmp/pulse-cookie
       - SDL_AUDIODRIVER=pulseaudio
-      # Native Wayland by default (proper fullscreen). Override per run with
-      # `SDL_VIDEODRIVER=x11 ./run.sh`: on Wayland the engine's error/startup
-      # dialogs can't create an SDL renderer in the container and crash
-      # instead of showing (see README Troubleshooting); X11 shows them, but
-      # the game then opens as a normal window, not fullscreen.
+      # Native Wayland by default (proper fullscreen). `SDL_VIDEODRIVER=x11
+      # ./run.sh` overrides it per run (mouse-capture fallback; the game is
+      # then a normal window on niri, not fullscreen).
       - SDL_VIDEODRIVER=${SDL_VIDEODRIVER:-wayland}
+      # Route EGL to Mesa. In the container NVIDIA's EGL can't allocate
+      # Wayland window buffers (eglCreateWindowSurface -> EGL_BAD_ALLOC), and
+      # SDL2's Wayland backend has no software fallback, so the engine's
+      # SDL-drawn dialogs (error box, etc.) crashed with "Unable to create
+      # renderer". Mesa draws them on the CPU (llvmpipe). The game itself
+      # renders with Vulkan, which picks its driver independently of EGL,
+      # so it still runs on the NVIDIA GPU. Only the OpenGL backend
+      # (vid_preferbackend 0) would end up on llvmpipe, so keep Vulkan.
+      - __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json
     volumes:
       # --- SYSTEM (GFX and Audio) ---
       - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-dir/${WAYLAND_DISPLAY}
