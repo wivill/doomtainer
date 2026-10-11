@@ -1,0 +1,31 @@
+# Launcher tests on every OS the native launcher supports. Windows runs them
+# in Git Bash (the runner's `bash`), the same shell run-windows.cmd uses on
+# the MSI Claw, with the runner's core.autocrlf=true exercising .gitattributes.
+name: test
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Library tests
+        run: tests/test_common.sh
+
+      - name: run-native.sh end to end
+        run: tests/test_run_native.sh

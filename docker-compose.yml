@@ -52,8 +52,10 @@ services:
       - ./map_wads:/games/maps
       # 3. Gameplay Mods
       - ./mods:/games/mods
-      # 4. Persistent config and saves
+      # 4. Per-machine config + shared.cfg
       - ./config:/config
+      # 5. Saves (a clone of the private saves repo, synced by run.sh)
+      - ./saves:/saves
 
     devices:
       - /dev/dri:/dev/dri
