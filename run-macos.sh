@@ -52,8 +52,8 @@ if [ "$missing" -ne 0 ]; then
     exit 1
 fi
 
-# 3. Keep config and saves in the repo, separate from the container's gzdoom.ini
-# (different engine and version, which would rewrite it on every switch).
+# 3. Keep config and saves in the repo, separate from the container's
+# uzdoom.ini so each machine keeps its own video, mouse and key settings.
 mkdir -p savegames
 
 exec "$UZDOOM_BIN" \

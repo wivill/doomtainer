@@ -1,8 +1,8 @@
 services:
-  gzdoom:
+  uzdoom:
     # Build from specific engine
     build:
-      context: ./engines/gzdoom
+      context: ./engines/uzdoom
     container_name: doom-engine
     # Run as the host user (UID/GID come from the .env written by run.sh) so
     # config and saves stay owned by you, and the Wayland/PulseAudio sockets

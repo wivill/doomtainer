@@ -1,6 +1,6 @@
 # Doomtainer
 
-Run GZDoom in a Docker container with GPU acceleration. This setup is optimized for Wayland and includes support for Nvidia, AMD, and Intel GPUs.
+Run [UZDoom](https://github.com/UZDoom/UZDoom) (the maintained GZDoom fork) in a Docker container with GPU acceleration. This setup is optimized for Wayland and includes support for Nvidia, AMD, and Intel GPUs.
 
 ## Disclaimer
 
@@ -89,7 +89,7 @@ This script will:
 *   Grant display access to your user (X11 fallback).
 *   Build and run the Docker container using `docker compose`.
 
-The container runs as your user, not root, so `config/` and your saves stay owned by you. The first run will take a few minutes to build the GZDoom engine.
+The container runs as your user, not root, so `config/` and your saves stay owned by you. The first run will take a few minutes to build the engine.
 
 > **Upgrading from an older version?** Earlier versions ran the container as root, which left `config/` (including `config/savegames/`) owned by root. `run.sh` checks for this and stops with the fix, which you only need to run once:
 > ```bash
@@ -112,13 +112,13 @@ The container setup doesn't work on macOS: Docker there runs inside a Linux VM w
     ```bash
     ./run-macos.sh            # any extra arguments are passed to the engine, e.g. +map E1M1
     ```
-    The script checks that every referenced file exists before it launches. Settings are stored in `config/uzdoom-macos.ini`, separate from the container's `gzdoom.ini` (a different engine and version would rewrite it). Saves go in `savegames/`. To use a different engine binary, set `UZDOOM_BIN`.
+    The script checks that every referenced file exists before it launches. Settings are stored in `config/uzdoom-macos.ini`, separate from the container's `uzdoom.ini` so each machine keeps its own video, mouse and key settings. Saves go in `savegames/`. To use a different engine binary, set `UZDOOM_BIN`.
 
 ## Configuration
 
 *   **Mods and Maps:** To change which mods and maps are loaded, edit the `command` section in the `docker-compose.yml` file.
 
-*   **GZDoom Settings:** Settings are stored in `config/gzdoom.ini` and saves in `config/savegames/`. The container passes both paths to the engine explicitly. Edit `gzdoom.ini` to change video, audio, and keybinding settings.
+*   **Engine Settings:** Settings are stored in `config/uzdoom.ini` and saves in `config/savegames/`. The container passes both paths to the engine explicitly. Edit `uzdoom.ini` to change video, audio, and keybinding settings.
 
 ## Troubleshooting
 
