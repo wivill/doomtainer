@@ -1,7 +1,8 @@
 #!/bin/bash
 # Native macOS launcher. Docker on macOS runs inside a Linux VM with no GPU,
 # display or audio passthrough, so here the engine runs natively (UZDoom,
-# Metal via MoltenVK) against the same WAD/mod folders the container uses.
+# OpenGL-on-Metal by default, Vulkan via its bundled MoltenVK optional)
+# against the same WAD/mod folders the container uses.
 #
 # The launch arguments are read from the `command:` block in
 # docker-compose.yml so the mod list stays defined in one place. Container
