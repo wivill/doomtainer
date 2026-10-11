@@ -7,3 +7,4 @@
 savegames
 mods/*
 docker-compose.override.yml
+benchmarks.txt

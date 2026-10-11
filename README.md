@@ -100,7 +100,7 @@ The container runs as your user, not root, so `config/` and your saves stay owne
 
 The container setup doesn't work on macOS: Docker there runs inside a Linux VM with no GPU, Wayland/X11 or PulseAudio passthrough. Instead, `run-macos.sh` runs the engine natively and uses the same `original_wads/`, `map_wads/` and `mods/` folders. It also reads the same launch arguments from the `command:` block in `docker-compose.yml`, so you only maintain the mod list in one place.
 
-1.  **Install UZDoom** (the actively maintained GZDoom fork, with a native ARM64 build that renders through Metal via MoltenVK). Download `MacOS-UZDoom-Release-ARM64.dmg` from the [UZDoom releases](https://github.com/UZDoom/UZDoom/releases) and drag `UZDoom.app` into `/Applications`. Each release includes a `_release.json` file with the SHA-256 checksum of every asset:
+1.  **Install UZDoom** (the actively maintained GZDoom fork, with a native ARM64 build). Download `MacOS-UZDoom-Release-ARM64.dmg` from the [UZDoom releases](https://github.com/UZDoom/UZDoom/releases) and drag `UZDoom.app` into `/Applications`. Each release includes a `_release.json` file with the SHA-256 checksum of every asset:
     ```bash
     shasum -a 256 MacOS-UZDoom-Release-ARM64.dmg
     ```
@@ -112,7 +112,9 @@ The container setup doesn't work on macOS: Docker there runs inside a Linux VM w
     ```bash
     ./run-macos.sh            # any extra arguments are passed to the engine, e.g. +map E1M1
     ```
-    The script checks that every referenced file exists before it launches. Settings are stored in `config/uzdoom-macos.ini`, separate from the container's `uzdoom.ini` so each machine keeps its own video, mouse and key settings. Saves go in `savegames/`. To use a different engine binary, set `UZDOOM_BIN`.
+    The script checks that every referenced file exists before it launches.
+
+    **Renderer:** on macOS, UZDoom defaults to OpenGL (Apple's OpenGL 4.1 implementation running on Metal). The app also ships MoltenVK, so you can switch to Vulkan by setting `vid_preferbackend 1` in the console, or `vid_preferbackend=1` in `config/uzdoom-macos.ini` (`0` = OpenGL), and restarting. A quick `bench` at the start of E1M1 with Project Brutality on an M5 Pro gave OpenGL about 266 fps and Vulkan about 239 fps, but Vulkan used about 30% less CPU and about 500 MB less memory. Both are well above the display refresh rate, so the main difference is efficiency. Settings are stored in `config/uzdoom-macos.ini`, separate from the container's `uzdoom.ini` so each machine keeps its own video, mouse and key settings. Saves go in `savegames/`. To use a different engine binary, set `UZDOOM_BIN`.
 
 ## Configuration
 
