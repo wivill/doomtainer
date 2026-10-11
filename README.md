@@ -126,4 +126,8 @@ The container setup doesn't work on macOS: Docker there runs inside a Linux VM w
 
 *   **No Audio:** The `run.sh` script attempts to locate your PulseAudio/PipeWire cookie. If you have no audio, check the `PULSE_COOKIE_PATH` in `run.sh` and adjust it to your system's configuration.
 
-*   **Mouse issues on Wayland:** If your mouse is not captured correctly, you can try switching the `SDL_VIDEODRIVER` environment variable in `docker-compose.yml` from `wayland` to `x11`.
+*   **Mouse issues on Wayland:** If your mouse is not captured correctly, run with X11 instead: `SDL_VIDEODRIVER=x11 ./run.sh`. On niri the game then opens as a normal tiled window, not fullscreen.
+
+*   **Error dialogs on Wayland (NVIDIA):** inside the container NVIDIA's EGL can't allocate Wayland window buffers (`EGL_BAD_ALLOC`). The engine's SDL-drawn dialogs used to crash with `Unable to create renderer: Couldn't find matching render driver`, losing the real error. `docker-compose.yml` now routes EGL to Mesa (`__EGL_VENDOR_LIBRARY_FILENAMES`), which draws those dialogs on the CPU. The game is unaffected because it renders with Vulkan on the GPU. Keep `vid_preferbackend 1` (Vulkan): the OpenGL backend would fall back to Mesa's CPU renderer. If you ever see that `Unable to create renderer` message again, `SDL_VIDEODRIVER=x11 ./run.sh` shows the real error.
+
+*   **Old savegames:** saves only load with the same mods (and compatible mod versions) they were made with. Saves from the GZDoom 4.11.3 + December 2024 Project Brutality + Ultimate DoomVisor setup fail on the current setup with `Unknown object class 'PB_PlayerPawn' … Failed to load savegame`. To load a save from the command line, give `-loadgame` a path relative to the save folder, e.g. `-loadgame doom.id.doom1.ultimate/save00.zds`, not `/config/savegames/…`.
