@@ -39,6 +39,7 @@ RUN rm -rf /tmp/uzdoom && \
     mkdir -m 1777 /home/doom
 
 WORKDIR /games
-# Config and saves live in the /config bind mount, independent of $HOME and
-# of each engine's default path layout.
-ENTRYPOINT ["uzdoom", "-config", "/config/uzdoom.ini", "-savedir", "/config/savegames"]
+# Config lives in the /config bind mount and saves in /saves (the synced saves
+# repo), independent of $HOME and of each engine's default path layout.
+# shared.cfg holds the settings every machine shares (see README).
+ENTRYPOINT ["uzdoom", "-config", "/config/uzdoom.ini", "-savedir", "/saves", "-exec", "/config/shared.cfg"]

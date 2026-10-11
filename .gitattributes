@@ -1,0 +1,4 @@
+# Scripts, compose and config must stay LF on Windows checkouts too (bash,
+# awk and sha256 parsing break on CRLF); .cmd files need CRLF.
+* text=auto eol=lf
+*.cmd text eol=crlf

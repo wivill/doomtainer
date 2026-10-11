@@ -8,3 +8,6 @@ savegames
 mods/*
 docker-compose.override.yml
 benchmarks.txt
+saves/
+.mods-verified
+.mods-verified.tmp

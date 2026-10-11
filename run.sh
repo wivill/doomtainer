@@ -1,5 +1,9 @@
 #!/bin/bash
 
+cd "$(dirname "$0")" || exit 1
+# shellcheck source=lib/common.sh
+. lib/common.sh
+
 # 1. Get user IDs
 USER_UID=$(id -u)
 USER_GID=$(id -g)
@@ -21,13 +25,18 @@ fi
 # 3. Bind-mount sources must exist and be yours: Docker creates missing ones
 # as root. Older versions ran the container as root, so check for leftovers
 # before creating anything.
-if [ -n "$(find config original_wads map_wads mods ! -user "$USER_UID" -print -quit 2>/dev/null)" ]; then
-    echo "Error: some files under config/ or the WAD/mod folders aren't owned by you" >&2
+if [ -n "$(find config saves original_wads map_wads mods ! -user "$USER_UID" -print -quit 2>/dev/null)" ]; then
+    echo "Error: some files under config/, saves/ or the WAD/mod folders aren't owned by you" >&2
     echo "(left over from when the container ran as root). Fix once with:" >&2
-    echo "    sudo chown -R $USER_UID:$USER_GID config original_wads map_wads mods" >&2
+    echo "    sudo chown -R $USER_UID:$USER_GID config saves original_wads map_wads mods" >&2
     exit 1
 fi
-mkdir -p original_wads map_wads mods config/savegames
+mkdir -p original_wads map_wads mods
+
+# Same mod files as the other machines (saves depend on them), then the
+# latest saves. The engine version is pinned by the Dockerfile itself.
+check_game_files
+saves_pull
 
 # 4. Give the container the host's GPU/sound device groups (device nodes keep
 # host GIDs). Generated per host because group IDs differ between distros, a
@@ -61,5 +70,12 @@ DEVICE_GIDS="$(for group in video render audio; do getent group "$group" | cut -
 # container no longer runs as root.
 xhost +SI:localuser:"$(id -un)" >/dev/null 2>&1
 
-# 7. Execute
+# 7. Execute, then publish the session's saves. Ctrl+C still stops the
+# container (compose handles it) but no longer skips the push: a trap
+# handler, unlike an ignored signal, isn't inherited by child processes.
+trap 'true' INT
 docker compose up --build
+status=$?
+trap - INT
+saves_push
+exit "$status"
