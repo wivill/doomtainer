@@ -58,9 +58,12 @@ services:
 
     # --- LAUNCH COMMAND ---
     # Adjust based on the wad and file you want to load. Pending to create a proper entrypoint to handle this.
+    # Project Brutality must be 0.4.1 or newer: earlier builds deliberately
+    # abort on GZDoom 4.13+/UZDoom. Get it from
+    # https://github.com/pa1nki113r/Project_Brutality/archive/refs/tags/0.4.1.zip
     command: >
       -iwad /games/iwads/DOOM.WAD
       -file
-      /games/mods/Project_Brutality-master.zip
+      /games/mods/Project_Brutality-0.4.1.zip
       /games/mods/IDKFA_Soundtrack_Mod_v2/WAD/IDKFAv2.wad
       /games/mods/zdoom-dhtp-20180514.pk3
