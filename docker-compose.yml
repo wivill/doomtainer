@@ -21,8 +21,12 @@ services:
       - PULSE_SERVER=unix:/tmp/pulse-socket
       - PULSE_COOKIE=/tmp/pulse-cookie
       - SDL_AUDIODRIVER=pulseaudio
-      # Try native Wayland. If it fails try switching to 'x11'
-      - SDL_VIDEODRIVER=wayland
+      # Native Wayland by default (proper fullscreen). Override per run with
+      # `SDL_VIDEODRIVER=x11 ./run.sh`: on Wayland the engine's error/startup
+      # dialogs can't create an SDL renderer in the container and crash
+      # instead of showing (see README Troubleshooting); X11 shows them, but
+      # the game then opens as a normal window, not fullscreen.
+      - SDL_VIDEODRIVER=${SDL_VIDEODRIVER:-wayland}
     volumes:
       # --- SYSTEM (GFX and Audio) ---
       - ${XDG_RUNTIME_DIR}/${WAYLAND_DISPLAY}:/tmp/runtime-dir/${WAYLAND_DISPLAY}
