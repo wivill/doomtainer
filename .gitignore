@@ -6,3 +6,4 @@
 *.pk3
 savegames
 mods/*
+docker-compose.override.yml

@@ -4,7 +4,16 @@ services:
     build:
       context: ./engines/gzdoom
     container_name: doom-engine
+    # Run as the host user (UID/GID come from the .env written by run.sh) so
+    # config and saves stay owned by you, and the Wayland/PulseAudio sockets
+    # accept the connection without extra grants.
+    # Supplementary groups for /dev/dri and /dev/snd are added by the
+    # docker-compose.override.yml that run.sh generates for this host.
+    user: "${UID:-1000}:${GID:-1000}"
     environment:
+      # World-writable home created in the image; the engine keeps its
+      # cache there. Config and saves are passed explicitly (see Dockerfile).
+      - HOME=/home/doom
       - DISPLAY=${DISPLAY}
       - WAYLAND_DISPLAY=${WAYLAND_DISPLAY}
       - XDG_RUNTIME_DIR=/tmp/runtime-dir
@@ -32,8 +41,8 @@ services:
       - ./map_wads:/games/maps
       # 3. Gameplay Mods
       - ./mods:/games/mods
-      # 4. Persistent Config
-      - ./config:/root/.config/gzdoom
+      # 4. Persistent config and saves
+      - ./config:/config
 
     devices:
       - /dev/dri:/dev/dri

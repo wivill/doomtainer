@@ -85,10 +85,16 @@ Simply execute the `run.sh` script:
 
 This script will:
 *   Generate a `.env` file with your user's UID/GID and display server information.
-*   Grant display access to the container.
+*   Generate a `docker-compose.override.yml` that adds your host's `video`, `render` and `audio` group IDs to the container. These IDs differ between distros, so the file is gitignored.
+*   Grant display access to your user (X11 fallback).
 *   Build and run the Docker container using `docker compose`.
 
-The first run will take a few minutes to build the GZDoom engine.
+The container runs as your user, not root, so `config/` and your saves stay owned by you. The first run will take a few minutes to build the GZDoom engine.
+
+> **Upgrading from an older version?** Earlier versions ran the container as root, which left `config/` (including `config/savegames/`) owned by root. `run.sh` checks for this and stops with the fix, which you only need to run once:
+> ```bash
+> sudo chown -R "$(id -u):$(id -g)" config original_wads map_wads mods
+> ```
 
 ## macOS (native, Apple Silicon)
 
@@ -112,7 +118,7 @@ The container setup doesn't work on macOS: Docker there runs inside a Linux VM w
 
 *   **Mods and Maps:** To change which mods and maps are loaded, edit the `command` section in the `docker-compose.yml` file.
 
-*   **GZDoom Settings:** After the first run, a `config` directory will be created. You can edit the `gzdoom.ini` file in this directory to change video, audio, and keybinding settings.
+*   **GZDoom Settings:** Settings are stored in `config/gzdoom.ini` and saves in `config/savegames/`. The container passes both paths to the engine explicitly. Edit `gzdoom.ini` to change video, audio, and keybinding settings.
 
 ## Troubleshooting
 
